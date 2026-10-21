@@ -12,9 +12,9 @@ from .defines import (
     literal,
 )
 from .encoders import set_group_to_code
-from .lvcode import lv, lv_assign, lv_expr, lv_Pvariable
+from .lvcode import lv
 from .schemas import ENCODER_SCHEMA, SET_GROUP_ACTION_SCHEMA
-from .types import LvglAction, lv_group_t, lv_indev_type_t
+from .types import LvglAction, lv_indev_type_t
 from .widgets import get_widgets
 
 KEYPAD_KEYS = (
@@ -65,8 +65,7 @@ async def keypads_to_code(var, config, default_group):
             cg.add(listener.add_button(b_sensor, literal(f"LV_KEY_{key.upper()}")))
 
         if group := enc_conf.get(CONF_GROUP):
-            group = lv_Pvariable(lv_group_t, group)
-            lv_assign(group, lv_expr.group_create())
+            group = await cg.get_variable(group)
         else:
             group = default_group
         lv.indev_set_group(listener.get_drv(), group)
@@ -80,5 +79,5 @@ async def keypad_initial_focus_to_code(config):
 
 
 automation.register_action(
-    "lvgl.keypad.set_group", LvglAction, SET_GROUP_ACTION_SCHEMA
+    "lvgl.keypad.set_group", LvglAction, SET_GROUP_ACTION_SCHEMA, synchronous=True
 )(set_group_to_code)

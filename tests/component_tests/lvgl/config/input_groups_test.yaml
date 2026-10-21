@@ -1,0 +1,54 @@
+esphome:
+  name: test-lvgl-input-groups
+
+host:
+
+binary_sensor:
+  - platform: template
+    id: enter_button
+
+sensor:
+  - platform: rotary_encoder
+    id: test_rotary_sensor
+    pin_a: 1
+    pin_b: 2
+
+display:
+  - platform: snapshot
+    id: test_display
+    auto_clear_enabled: false
+    dimensions:
+      width: 240
+      height: 320
+
+lvgl:
+  groups:
+    - shared_group
+    - other_group
+  encoders:
+    - id: test_encoder
+      sensor: test_rotary_sensor
+      enter_button: enter_button
+      group: shared_group
+      initial_focus: first_button
+  keypads:
+    - id: test_keypad
+      enter: enter_button
+      group: shared_group
+      initial_focus: first_button
+    - id: default_keypad
+      enter: enter_button
+  widgets:
+    - button:
+        id: first_button
+        group: shared_group
+        on_click:
+          - lvgl.encoder.set_group:
+              id: test_encoder
+              group: other_group
+          - lvgl.keypad.set_group:
+              id: test_keypad
+              group: other_group
+    - button:
+        id: second_button
+        group: other_group
